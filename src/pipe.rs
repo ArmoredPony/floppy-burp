@@ -1,7 +1,5 @@
 use bevy::prelude::*;
 
-use crate::config::*;
-
 pub struct PipePlugin;
 
 impl Plugin for PipePlugin {
@@ -9,3 +7,13 @@ impl Plugin for PipePlugin {
     todo!()
   }
 }
+
+#[derive(Component)]
+pub struct Pipe {
+  is_bottom: bool,
+}
+
+#[derive(Resource, Deref)]
+pub struct PipeSpawnTimer(pub Timer);
+
+fn spawn_pipes(mut commands: Commands) {}

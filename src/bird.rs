@@ -1,6 +1,11 @@
 use bevy::prelude::*;
 
-use crate::config::*;
+use crate::{collision::Shape, config::*};
+
+pub const FLAP_FORCE: f32 = 700.0;
+pub const GRAVITY_COEF: f32 = 2000.0;
+pub const VEL_TO_ANGLE_RATIO: f32 = 8.0;
+pub const HITBOX_SIZE: f32 = 20.0;
 
 pub struct BirdPlugin;
 
@@ -20,18 +25,19 @@ struct Bird {
 fn respawn_bird(
   mut commands: Commands,
   asset_server: Res<AssetServer>,
+  window: Query<&Window>,
   query: Query<Entity, With<Bird>>,
 ) {
   if let Ok(entity) = query.get_single() {
     commands.entity(entity).despawn();
   }
+  let window = window.single();
   commands.spawn((
-    Sprite {
-      image: asset_server.load("bird.png"),
-      ..default()
-    },
+    Sprite::from_image(asset_server.load("bird.png")),
     Bird::default(),
-    Transform::IDENTITY.with_scale(Vec3::splat(PIXEL_RATIO)),
+    Transform::from_translation(Vec3::new(-window.width() / 4.0, 0.0, 0.0))
+      .with_scale(Vec3::splat(PIXEL_RATIO)),
+    Shape::Circle(Circle::new(HITBOX_SIZE)),
   ));
 }
 
@@ -43,7 +49,7 @@ fn update_bird(
   let Ok((mut bird, mut transform)) = query.get_single_mut() else {
     return;
   };
-  if keys.just_pressed(KeyCode::Space) {
+  if keys.pressed(KeyCode::Space) {
     bird.velocity = FLAP_FORCE;
   }
   bird.velocity -= time.delta_secs() * GRAVITY_COEF;
