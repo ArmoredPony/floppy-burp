@@ -1,11 +1,13 @@
 mod bird;
 mod collision;
-mod config;
 mod pipe;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, window::WindowResolution};
 use bird::BirdPlugin;
 use collision::CollisionPlugin;
+use pipe::PipePlugin;
+
+const GAME_SPEED: f32 = 40.0;
 
 fn main() {
   App::new()
@@ -15,7 +17,8 @@ fn main() {
           primary_window: Some(Window {
             title: "Floppy Burp".into(),
             position: WindowPosition::Centered(MonitorSelection::Primary),
-            resolution: Vec2::new(512.0, 1024.0).into(),
+            resolution: WindowResolution::new(360.0, 720.0)
+              .with_scale_factor_override(3.0),
             ..default()
           }),
           ..default()
@@ -23,8 +26,8 @@ fn main() {
         .set(ImagePlugin::default_nearest()),
     )
     .add_plugins(CollisionPlugin)
+    .add_plugins((BirdPlugin, PipePlugin))
     .add_systems(Startup, setup_game)
-    .add_plugins(BirdPlugin)
     .run();
 }
 

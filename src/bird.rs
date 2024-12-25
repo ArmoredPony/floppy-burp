@@ -1,9 +1,9 @@
 use bevy::prelude::*;
 
-use crate::{collision::Shape, config::*};
+use crate::collision::Shape;
 
-pub const FLAP_FORCE: f32 = 700.0;
-pub const GRAVITY_COEF: f32 = 2000.0;
+pub const FLAP_FORCE: f32 = 200.0;
+pub const GRAVITY_COEF: f32 = 1200.0;
 pub const VEL_TO_ANGLE_RATIO: f32 = 8.0;
 pub const HITBOX_SIZE: f32 = 20.0;
 
@@ -25,18 +25,16 @@ struct Bird {
 fn respawn_bird(
   mut commands: Commands,
   asset_server: Res<AssetServer>,
-  window: Query<&Window>,
+  window: Single<&Window>,
   query: Query<Entity, With<Bird>>,
 ) {
   if let Ok(entity) = query.get_single() {
     commands.entity(entity).despawn();
   }
-  let window = window.single();
   commands.spawn((
-    Sprite::from_image(asset_server.load("bird.png")),
     Bird::default(),
-    Transform::from_translation(Vec3::new(-window.width() / 4.0, 0.0, 0.0))
-      .with_scale(Vec3::splat(PIXEL_RATIO)),
+    Sprite::from_image(asset_server.load("bird.png")),
+    Transform::from_xyz(-window.width() / 4.0, 0.0, 0.0),
     Shape::Circle(Circle::new(HITBOX_SIZE)),
   ));
 }

@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::Anchor};
 
 pub struct CollisionPlugin;
 
@@ -14,9 +14,15 @@ pub enum Shape {
   Circle(Circle),
 }
 
-fn debug_bbox(mut gizmos: Gizmos, query: Query<(&Shape, &Transform)>) {
-  for (shape, transform) in &query {
-    let isometry = Isometry2d::from(transform.translation.xy());
+fn debug_bbox(
+  mut gizmos: Gizmos,
+  query: Query<(&Shape, &Transform, Option<&Anchor>)>,
+) {
+  for (shape, transform, anchor) in &query {
+    let isometry = Isometry2d::from(
+      transform.translation.xy()
+        * anchor.map(|a| a.as_vec() * 2.0).unwrap_or(Vec2::ONE),
+    );
     let color = Color::srgb(1.0, 0.0, 0.0);
     match shape {
       Shape::Rectangle(r) => {
