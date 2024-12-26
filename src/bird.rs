@@ -1,9 +1,9 @@
-use bevy::{math::bounding::BoundingCircle, prelude::*};
+use bevy::prelude::*;
 
-use crate::{collision::Collider, layer::Layer, pipe::Pipe};
+use crate::{collision::Shape, layer::Layer, pipe::Pipe, RESOLUTION};
 
-pub const FLAP_FORCE: f32 = 200.0;
-pub const GRAVITY_COEF: f32 = 1200.0;
+pub const FLAP_FORCE: f32 = 120.0;
+pub const GRAVITY_COEF: f32 = 700.0;
 pub const VEL_TO_ANGLE_RATIO: f32 = 8.0;
 pub const HITBOX_SIZE: f32 = 4.0;
 
@@ -25,7 +25,6 @@ struct Bird {
 fn respawn_bird(
   mut commands: Commands,
   asset_server: Res<AssetServer>,
-  window: Single<&Window>,
   query: Query<Entity, With<Bird>>,
 ) {
   if let Ok(entity) = query.get_single() {
@@ -34,8 +33,8 @@ fn respawn_bird(
   commands.spawn((
     Bird::default(),
     Sprite::from_image(asset_server.load("bird.png")),
-    Transform::from_xyz(-window.width() / 4.0, 0.0, Layer::Bird.into()),
-    Collider::Circle(BoundingCircle::new(Vec2::ZERO, HITBOX_SIZE)),
+    Transform::from_xyz(-RESOLUTION.x / 4.0, 0.0, Layer::Bird.into()),
+    Shape::Circle(Circle::new(HITBOX_SIZE)),
   ));
 }
 
@@ -49,8 +48,9 @@ fn update_bird(
   };
   if keys.pressed(KeyCode::Space) {
     bird.velocity = FLAP_FORCE;
+  } else {
+    bird.velocity -= time.delta_secs() * GRAVITY_COEF;
   }
-  bird.velocity -= time.delta_secs() * GRAVITY_COEF;
   transform.translation.y += bird.velocity * time.delta_secs();
   transform.rotation = Quat::from_axis_angle(
     Vec3::Z,
@@ -59,7 +59,7 @@ fn update_bird(
 }
 
 fn detect_collision(
-  bird_collider: Single<&Collider, With<Bird>>,
-  pipe_query: Query<&Collider, With<Pipe>>,
+  bird_collider: Single<(&Shape, &Transform), With<Bird>>,
+  pipe_query: Query<(&Shape, &Transform), With<Pipe>>,
 ) {
 }

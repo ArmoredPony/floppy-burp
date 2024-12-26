@@ -1,17 +1,18 @@
+#[repr(i16)]
 pub enum Layer {
   Bird = 0,
   Pipe = -1,
-  Background = i16::MIN as isize,
+  Background = i16::MIN,
 }
 
-impl From<Layer> for i32 {
+impl From<Layer> for i16 {
   fn from(value: Layer) -> Self {
-    value as i32
+    value as i16
   }
 }
 
 impl From<Layer> for f32 {
   fn from(value: Layer) -> Self {
-    value as i32 as f32
+    i16::from(value).into()
   }
 }
