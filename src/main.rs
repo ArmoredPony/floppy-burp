@@ -1,5 +1,6 @@
 mod bird;
 mod collision;
+mod layer;
 mod pipe;
 
 use bevy::{prelude::*, window::WindowResolution};
@@ -11,6 +12,18 @@ const GAME_SPEED: f32 = 40.0;
 
 fn main() {
   App::new()
+    .add_systems(
+      FixedUpdate,
+      |mut commands: Commands,
+       focused_windows: Query<Entity, With<Window>>,
+       input: Res<ButtonInput<KeyCode>>| {
+        for window in focused_windows.iter() {
+          if input.just_pressed(KeyCode::Escape) {
+            commands.entity(window).despawn();
+          }
+        }
+      },
+    )
     .add_plugins(
       DefaultPlugins
         .set(WindowPlugin {
@@ -25,9 +38,10 @@ fn main() {
         })
         .set(ImagePlugin::default_nearest()),
     )
-    .add_plugins(CollisionPlugin)
-    .add_plugins((BirdPlugin, PipePlugin))
     .add_systems(Startup, setup_game)
+    .add_plugins(CollisionPlugin)
+    .add_plugins(PipePlugin)
+    .add_plugins(BirdPlugin)
     .run();
 }
 

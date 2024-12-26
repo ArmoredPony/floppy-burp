@@ -1,11 +1,11 @@
-use bevy::prelude::*;
+use bevy::{math::bounding::BoundingCircle, prelude::*};
 
-use crate::collision::Shape;
+use crate::{collision::Collider, layer::Layer, pipe::Pipe};
 
 pub const FLAP_FORCE: f32 = 200.0;
 pub const GRAVITY_COEF: f32 = 1200.0;
 pub const VEL_TO_ANGLE_RATIO: f32 = 8.0;
-pub const HITBOX_SIZE: f32 = 20.0;
+pub const HITBOX_SIZE: f32 = 4.0;
 
 pub struct BirdPlugin;
 
@@ -34,8 +34,8 @@ fn respawn_bird(
   commands.spawn((
     Bird::default(),
     Sprite::from_image(asset_server.load("bird.png")),
-    Transform::from_xyz(-window.width() / 4.0, 0.0, 0.0),
-    Shape::Circle(Circle::new(HITBOX_SIZE)),
+    Transform::from_xyz(-window.width() / 4.0, 0.0, Layer::Bird.into()),
+    Collider::Circle(BoundingCircle::new(Vec2::ZERO, HITBOX_SIZE)),
   ));
 }
 
@@ -56,4 +56,10 @@ fn update_bird(
     Vec3::Z,
     f32::clamp(bird.velocity / VEL_TO_ANGLE_RATIO, -90.0, 90.0).to_radians(),
   );
+}
+
+fn detect_collision(
+  bird_collider: Single<&Collider, With<Bird>>,
+  pipe_query: Query<&Collider, With<Pipe>>,
+) {
 }

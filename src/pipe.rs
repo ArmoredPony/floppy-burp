@@ -1,9 +1,9 @@
-use bevy::{prelude::*, sprite::Anchor};
+use bevy::{math::bounding::Aabb2d, prelude::*, sprite::Anchor};
 
-use crate::{collision::Shape, GAME_SPEED};
+use crate::{collision::Collider, layer::Layer, GAME_SPEED};
 
 pub const HITBOX_SIZE: Vec2 = Vec2 { x: 17.0, y: 142.0 };
-pub const VERTICAL_GAP: f32 = 50.0;
+pub const VERTICAL_GAP: f32 = 10.0 + HITBOX_SIZE.y;
 
 pub struct PipePlugin;
 
@@ -43,11 +43,21 @@ fn spawn_pipes(
       Pipe,
       Sprite {
         image: asset_server.load("pipe.png"),
-        anchor: Anchor::TopCenter,
+        flip_y: true,
         ..default()
       },
-      Transform::from_xyz(0.0, -VERTICAL_GAP / 2.0, 0.0),
-      Shape::Rectangle(Rectangle::from_size(HITBOX_SIZE)),
+      Transform::from_xyz(0.0, VERTICAL_GAP / 2.0, Layer::Pipe.into()),
+      Collider::Rectangle(Aabb2d::new(Vec2::ZERO, HITBOX_SIZE)),
+      Anchor::TopCenter,
+    ));
+    commands.spawn((
+      Pipe,
+      Sprite {
+        image: asset_server.load("pipe.png"),
+        ..default()
+      },
+      Transform::from_xyz(0.0, -VERTICAL_GAP / 2.0, Layer::Pipe.into()),
+      Collider::Rectangle(Aabb2d::new(Vec2::ZERO, HITBOX_SIZE)),
       Anchor::TopCenter,
     ));
   }
