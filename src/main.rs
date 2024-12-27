@@ -8,7 +8,7 @@ use bevy::{prelude::*, window::WindowResolution};
 use bird::BirdPlugin;
 use collision::CollisionPlugin;
 use pipe::PipePlugin;
-use state::GameState;
+use state::{GameState, GameStatePlugin};
 
 const GAME_SPEED: f32 = 40.0;
 const PHYSICAL_RESOLUTION: Vec2 = Vec2::new(360.0, 720.0);
@@ -20,18 +20,6 @@ const RESOLUTION: Vec2 = Vec2::new(
 
 fn main() {
   App::new()
-    .add_systems(
-      FixedUpdate,
-      |mut commands: Commands,
-       focused_windows: Query<Entity, With<Window>>,
-       input: Res<ButtonInput<KeyCode>>| {
-        for window in focused_windows.iter() {
-          if input.just_pressed(KeyCode::Escape) {
-            commands.entity(window).despawn();
-          }
-        }
-      },
-    )
     .add_plugins(
       DefaultPlugins
         .set(WindowPlugin {
@@ -48,6 +36,7 @@ fn main() {
     )
     .insert_state(GameState::Idle)
     .add_systems(Startup, setup_game)
+    .add_plugins(GameStatePlugin)
     .add_plugins(CollisionPlugin)
     .add_plugins(PipePlugin)
     .add_plugins(BirdPlugin)

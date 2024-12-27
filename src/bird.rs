@@ -1,17 +1,25 @@
-use std::ops::{Add, Mul};
+use std::ops::Add;
 
 use bevy::prelude::*;
 
-use crate::{collision::Shape, layer::Layer, pipe::Pipe, RESOLUTION};
+use crate::{
+  collision::Shape,
+  layer::Layer,
+  pipe::Pipe,
+  state::GameState,
+  RESOLUTION,
+};
 
 pub struct BirdPlugin;
 
 impl Plugin for BirdPlugin {
   fn build(&self, app: &mut App) {
     app
-      .add_systems(Startup, respawn_bird)
-      .add_systems(Update, update_bird)
-      .add_systems(Update, detect_collision);
+      .add_systems(OnEnter(GameState::Idle), respawn_bird)
+      .add_systems(
+        Update,
+        (update_bird, detect_collision).run_if(in_state(GameState::Going)),
+      );
   }
 }
 
@@ -77,12 +85,10 @@ fn detect_collision(
 ) {
   let bird_collider = bird_query.0.to_collider(bird_query.1.translation.xy());
   for obstacle in &obstacle_query {
-    if obstacle
-      .0
-      .to_collider(obstacle.1.translation.xy())
-      .collides(&bird_collider)
+    if bird_collider
+      .collides(&obstacle.0.to_collider(obstacle.1.translation.xy()))
     {
-      dbg!("collision!");
+      // dbg!("collision!");
     }
   }
 }
