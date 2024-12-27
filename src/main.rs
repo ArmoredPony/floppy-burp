@@ -1,4 +1,5 @@
 mod bird;
+mod checkpoint;
 mod collision;
 mod layer;
 mod pipe;
@@ -6,6 +7,7 @@ mod state;
 
 use bevy::{prelude::*, window::WindowResolution};
 use bird::BirdPlugin;
+use checkpoint::CheckpointPlugin;
 use collision::CollisionPlugin;
 use pipe::PipePlugin;
 use state::{GameState, GameStatePlugin};
@@ -40,6 +42,7 @@ fn main() {
     .add_plugins(CollisionPlugin)
     .add_plugins(PipePlugin)
     .add_plugins(BirdPlugin)
+    .add_plugins(CheckpointPlugin)
     .run();
 }
 

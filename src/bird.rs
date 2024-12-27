@@ -17,6 +17,13 @@ impl Plugin for BirdPlugin {
     app
       .add_systems(OnEnter(GameState::Idle), respawn_bird)
       .add_systems(
+        OnTransition {
+          exited: GameState::GameOver,
+          entered: GameState::Going,
+        },
+        respawn_bird,
+      )
+      .add_systems(
         Update,
         (update_bird, detect_collision).run_if(in_state(GameState::Going)),
       );
@@ -24,7 +31,7 @@ impl Plugin for BirdPlugin {
 }
 
 #[derive(Component, Default)]
-struct Bird {
+pub struct Bird {
   pub velocity: f32,
 }
 
@@ -80,6 +87,7 @@ fn update_bird(
 }
 
 fn detect_collision(
+  mut next_state: ResMut<NextState<GameState>>,
   bird_query: Single<(&Shape, &Transform), With<Bird>>,
   obstacle_query: Query<(&Shape, &Transform), With<Pipe>>,
 ) {
@@ -88,7 +96,7 @@ fn detect_collision(
     if bird_collider
       .collides(&obstacle.0.to_collider(obstacle.1.translation.xy()))
     {
-      // dbg!("collision!");
+      next_state.set(GameState::GameOver);
     }
   }
 }

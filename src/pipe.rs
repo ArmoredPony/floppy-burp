@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use rand::Rng;
 
 use crate::{
+  checkpoint::Checkpoint,
   collision::Shape,
   layer::Layer,
   state::GameState,
@@ -13,15 +14,15 @@ pub struct PipePlugin;
 
 impl Plugin for PipePlugin {
   fn build(&self, app: &mut App) {
+    let pipe_reset_system_set = (
+      reset_spawn_timer, //
+      despawn_all_pipes,
+      spawn_pipes_randomly,
+    );
     app
       .insert_resource(PipeSpawnTimer::from_period(Pipe::RESPAWN_COOLDOWN_SEC))
-      .add_systems(
-        OnTransition {
-          exited: GameState::Idle,
-          entered: GameState::Going,
-        },
-        (reset_spawn_timer, despawn_all_pipes, spawn_pipes_randomly),
-      )
+      .add_systems(OnExit(GameState::Idle), pipe_reset_system_set)
+      .add_systems(OnExit(GameState::GameOver), pipe_reset_system_set)
       .add_systems(
         Update,
         (
@@ -94,6 +95,7 @@ fn spawn_pipes_randomly(
       Layer::Pipe.into(),
     ),
     Shape::Rectangle(Rectangle::from_size(Pipe::HITBOX_SIZE)),
+    Checkpoint,
   ));
 }
 
