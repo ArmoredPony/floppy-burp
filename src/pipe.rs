@@ -4,6 +4,7 @@ use rand::Rng;
 use crate::{
   checkpoint::Checkpoint,
   collision::Shape,
+  ground::Ground,
   layer::Layer,
   state::GameState,
   GAME_SPEED,
@@ -67,8 +68,10 @@ fn spawn_pipes_randomly(
   mut commands: Commands,
   asset_server: Res<AssetServer>,
 ) {
-  let spawn_point_y = rand::thread_rng()
-    .gen_range(-Pipe::SPAWN_POINT_MID_DISTANCE..Pipe::SPAWN_POINT_MID_DISTANCE);
+  let spawn_point_y = rand::thread_rng().gen_range(
+    (-Pipe::SPAWN_POINT_MID_DISTANCE + Ground::LEVEL)
+      ..Pipe::SPAWN_POINT_MID_DISTANCE,
+  );
   commands.spawn((
     Pipe,
     Sprite {

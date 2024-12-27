@@ -1,15 +1,23 @@
+#![allow(clippy::type_complexity)]
+
 mod bird;
 mod checkpoint;
 mod collision;
+mod ground;
 mod layer;
 mod pipe;
 mod score;
 mod state;
 
-use bevy::{prelude::*, window::WindowResolution};
+use bevy::{
+  log::{Level, LogPlugin},
+  prelude::*,
+  window::WindowResolution,
+};
 use bird::BirdPlugin;
 use checkpoint::CheckpointPlugin;
 use collision::CollisionPlugin;
+use ground::GroundPlugin;
 use pipe::PipePlugin;
 use score::ScorePlugin;
 use state::{GameState, GameStatePlugin};
@@ -46,6 +54,7 @@ fn main() {
     .add_systems(Startup, setup_game)
     .add_plugins(GameStatePlugin)
     .add_plugins(CollisionPlugin)
+    .add_plugins(GroundPlugin)
     .add_plugins(PipePlugin)
     .add_plugins(BirdPlugin)
     .add_plugins(CheckpointPlugin)

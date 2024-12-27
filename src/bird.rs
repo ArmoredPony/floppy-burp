@@ -4,6 +4,7 @@ use bevy::prelude::*;
 
 use crate::{
   collision::Shape,
+  ground::Ground,
   layer::Layer,
   pipe::Pipe,
   state::GameState,
@@ -76,7 +77,7 @@ fn update_bird(
     .y
     .add(bird.velocity * time.delta_secs())
     .clamp(
-      -RESOLUTION.y / 2.0 + Bird::HITBOX_SIZE,
+      -RESOLUTION.y / 2.0 + Bird::HITBOX_SIZE + Ground::LEVEL,
       RESOLUTION.y / 2.0 + Bird::HITBOX_SIZE * 2.0,
     );
   transform.rotation = Quat::from_axis_angle(
@@ -89,7 +90,7 @@ fn update_bird(
 fn detect_collision(
   mut next_state: ResMut<NextState<GameState>>,
   bird_query: Single<(&Shape, &Transform), With<Bird>>,
-  obstacle_query: Query<(&Shape, &Transform), With<Pipe>>,
+  obstacle_query: Query<(&Shape, &Transform), Or<(With<Pipe>, With<Ground>)>>,
 ) {
   let bird_collider = bird_query.0.to_collider(bird_query.1.translation.xy());
   for obstacle in &obstacle_query {

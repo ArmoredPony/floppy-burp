@@ -46,6 +46,6 @@ fn debug_checkpoints(
     );
   }
   for _ in events.read() {
-    dbg!("Score incremented!");
+    debug!("checkpoint hit");
   }
 }

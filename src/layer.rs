@@ -2,6 +2,7 @@
 pub enum Layer {
   Bird = 0,
   Pipe = -1,
+  Ground = -2,
   Background = i16::MIN,
 }
 
