@@ -2,11 +2,13 @@ mod bird;
 mod collision;
 mod layer;
 mod pipe;
+mod state;
 
 use bevy::{prelude::*, window::WindowResolution};
 use bird::BirdPlugin;
 use collision::CollisionPlugin;
 use pipe::PipePlugin;
+use state::GameState;
 
 const GAME_SPEED: f32 = 40.0;
 const PHYSICAL_RESOLUTION: Vec2 = Vec2::new(360.0, 720.0);
@@ -44,6 +46,7 @@ fn main() {
         })
         .set(ImagePlugin::default_nearest()),
     )
+    .insert_state(GameState::Idle)
     .add_systems(Startup, setup_game)
     .add_plugins(CollisionPlugin)
     .add_plugins(PipePlugin)

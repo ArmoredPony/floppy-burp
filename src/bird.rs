@@ -1,11 +1,8 @@
+use std::ops::{Add, Mul};
+
 use bevy::prelude::*;
 
 use crate::{collision::Shape, layer::Layer, pipe::Pipe, RESOLUTION};
-
-pub const FLAP_FORCE: f32 = 120.0;
-pub const GRAVITY_COEF: f32 = 700.0;
-pub const VEL_TO_ANGLE_RATIO: f32 = 8.0;
-pub const HITBOX_SIZE: f32 = 4.0;
 
 pub struct BirdPlugin;
 
@@ -13,13 +10,21 @@ impl Plugin for BirdPlugin {
   fn build(&self, app: &mut App) {
     app
       .add_systems(Startup, respawn_bird)
-      .add_systems(Update, update_bird);
+      .add_systems(Update, update_bird)
+      .add_systems(Update, detect_collision);
   }
 }
 
 #[derive(Component, Default)]
 struct Bird {
   pub velocity: f32,
+}
+
+impl Bird {
+  pub const FLAP_FORCE: f32 = 120.0;
+  pub const GRAVITY_COEF: f32 = 700.0;
+  pub const VEL_TO_ANGLE_RATIO: f32 = 8.0;
+  pub const HITBOX_SIZE: f32 = 4.0;
 }
 
 fn respawn_bird(
@@ -34,7 +39,7 @@ fn respawn_bird(
     Bird::default(),
     Sprite::from_image(asset_server.load("bird.png")),
     Transform::from_xyz(-RESOLUTION.x / 4.0, 0.0, Layer::Bird.into()),
-    Shape::Circle(Circle::new(HITBOX_SIZE)),
+    Shape::Circle(Circle::new(Bird::HITBOX_SIZE)),
   ));
 }
 
@@ -47,19 +52,37 @@ fn update_bird(
     return;
   };
   if keys.pressed(KeyCode::Space) {
-    bird.velocity = FLAP_FORCE;
+    bird.velocity = Bird::FLAP_FORCE;
   } else {
-    bird.velocity -= time.delta_secs() * GRAVITY_COEF;
+    bird.velocity -= time.delta_secs() * Bird::GRAVITY_COEF;
   }
-  transform.translation.y += bird.velocity * time.delta_secs();
+  transform.translation.y = transform
+    .translation
+    .y
+    .add(bird.velocity * time.delta_secs())
+    .clamp(
+      -RESOLUTION.y / 2.0 + Bird::HITBOX_SIZE,
+      RESOLUTION.y / 2.0 + Bird::HITBOX_SIZE * 2.0,
+    );
   transform.rotation = Quat::from_axis_angle(
     Vec3::Z,
-    f32::clamp(bird.velocity / VEL_TO_ANGLE_RATIO, -90.0, 90.0).to_radians(),
+    f32::clamp(bird.velocity / Bird::VEL_TO_ANGLE_RATIO, -90.0, 90.0)
+      .to_radians(),
   );
 }
 
 fn detect_collision(
-  bird_collider: Single<(&Shape, &Transform), With<Bird>>,
-  pipe_query: Query<(&Shape, &Transform), With<Pipe>>,
+  bird_query: Single<(&Shape, &Transform), With<Bird>>,
+  obstacle_query: Query<(&Shape, &Transform), With<Pipe>>,
 ) {
+  let bird_collider = bird_query.0.to_collider(bird_query.1.translation.xy());
+  for obstacle in &obstacle_query {
+    if obstacle
+      .0
+      .to_collider(obstacle.1.translation.xy())
+      .collides(&bird_collider)
+    {
+      dbg!("collision!");
+    }
+  }
 }
