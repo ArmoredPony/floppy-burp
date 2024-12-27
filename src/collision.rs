@@ -7,7 +7,8 @@ pub struct CollisionPlugin;
 
 impl Plugin for CollisionPlugin {
   fn build(&self, app: &mut App) {
-    app.add_systems(PostUpdate, debug_shapes);
+    #[cfg(debug_assertions)]
+    app.add_plugins(debug::CollisionDebugPlugin);
   }
 }
 
@@ -56,15 +57,28 @@ impl Collider {
   }
 }
 
-fn debug_shapes(mut gizmos: Gizmos, query: Query<(&Shape, &Transform)>) {
-  for (shape, transform) in &query {
-    let isometry = Isometry2d::from(transform.translation.xy());
-    match shape {
-      Shape::Rectangle(r) => {
-        gizmos.primitive_2d(r, isometry, Color::srgb(1.0, 0.0, 0.0));
-      }
-      Shape::Circle(c) => {
-        gizmos.primitive_2d(c, isometry, Color::srgb(0.0, 0.0, 1.0));
+#[cfg(debug_assertions)]
+mod debug {
+  use super::*;
+
+  pub struct CollisionDebugPlugin;
+
+  impl Plugin for CollisionDebugPlugin {
+    fn build(&self, app: &mut App) {
+      app.add_systems(PostUpdate, debug_shapes);
+    }
+  }
+
+  fn debug_shapes(mut gizmos: Gizmos, query: Query<(&Shape, &Transform)>) {
+    for (shape, transform) in &query {
+      let isometry = Isometry2d::from(transform.translation.xy());
+      match shape {
+        Shape::Rectangle(r) => {
+          gizmos.primitive_2d(r, isometry, Color::srgb(1.0, 0.0, 0.0));
+        }
+        Shape::Circle(c) => {
+          gizmos.primitive_2d(c, isometry, Color::srgb(0.0, 0.0, 1.0));
+        }
       }
     }
   }

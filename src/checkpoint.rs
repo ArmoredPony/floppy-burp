@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 
-use crate::{bird::Bird, RESOLUTION};
+use crate::bird::Bird;
+#[cfg(debug_assertions)]
+use crate::RESOLUTION;
 
 pub struct CheckpointPlugin;
 
@@ -8,8 +10,10 @@ impl Plugin for CheckpointPlugin {
   fn build(&self, app: &mut App) {
     app
       .add_event::<CheckpointPassed>()
-      .add_systems(FixedUpdate, update_checkpoints)
-      .add_systems(PostUpdate, debug_checkpoints);
+      .add_systems(FixedUpdate, update_checkpoints);
+
+    #[cfg(debug_assertions)]
+    app.add_plugins(debug::CheckpointDebugPlugin);
   }
 }
 
@@ -33,19 +37,32 @@ fn update_checkpoints(
   }
 }
 
-fn debug_checkpoints(
-  mut gizmos: Gizmos,
-  mut events: EventReader<CheckpointPassed>,
-  checkpoints: Query<&Transform, With<Checkpoint>>,
-) {
-  for checkpoint_transform in &checkpoints {
-    gizmos.line_2d(
-      checkpoint_transform.translation.xy().with_y(RESOLUTION.y),
-      checkpoint_transform.translation.xy().with_y(-RESOLUTION.y),
-      Color::srgb(0.0, 1.0, 0.0),
-    );
+#[cfg(debug_assertions)]
+mod debug {
+  use super::*;
+
+  pub struct CheckpointDebugPlugin;
+
+  impl Plugin for CheckpointDebugPlugin {
+    fn build(&self, app: &mut App) {
+      app.add_systems(PostUpdate, debug_checkpoints);
+    }
   }
-  for _ in events.read() {
-    debug!("checkpoint hit");
+
+  fn debug_checkpoints(
+    mut gizmos: Gizmos,
+    mut events: EventReader<CheckpointPassed>,
+    checkpoints: Query<&Transform, With<Checkpoint>>,
+  ) {
+    for checkpoint_transform in &checkpoints {
+      gizmos.line_2d(
+        checkpoint_transform.translation.xy().with_y(RESOLUTION.y),
+        checkpoint_transform.translation.xy().with_y(-RESOLUTION.y),
+        Color::srgb(0.0, 1.0, 0.0),
+      );
+    }
+    for _ in events.read() {
+      debug!("checkpoint hit");
+    }
   }
 }
