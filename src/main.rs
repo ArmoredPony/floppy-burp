@@ -3,6 +3,7 @@ mod checkpoint;
 mod collision;
 mod layer;
 mod pipe;
+mod score;
 mod state;
 
 use bevy::{prelude::*, window::WindowResolution};
@@ -10,6 +11,7 @@ use bird::BirdPlugin;
 use checkpoint::CheckpointPlugin;
 use collision::CollisionPlugin;
 use pipe::PipePlugin;
+use score::ScorePlugin;
 use state::{GameState, GameStatePlugin};
 
 const GAME_SPEED: f32 = 40.0;
@@ -34,7 +36,11 @@ fn main() {
           }),
           ..default()
         })
-        .set(ImagePlugin::default_nearest()),
+        .set(ImagePlugin::default_nearest())
+        .set(LogPlugin {
+          level: Level::DEBUG,
+          ..default()
+        }),
     )
     .insert_state(GameState::Idle)
     .add_systems(Startup, setup_game)
@@ -43,6 +49,7 @@ fn main() {
     .add_plugins(PipePlugin)
     .add_plugins(BirdPlugin)
     .add_plugins(CheckpointPlugin)
+    .add_plugins(ScorePlugin)
     .run();
 }
 
