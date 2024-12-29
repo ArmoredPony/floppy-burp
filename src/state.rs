@@ -1,3 +1,5 @@
+use std::ops::Not;
+
 use bevy::prelude::*;
 
 #[derive(States, Clone, Copy, Eq, PartialEq, Hash, Debug)]
@@ -14,22 +16,30 @@ impl Plugin for GameStatePlugin {
   fn build(&self, app: &mut App) {
     app //
       .add_systems(
-        FixedPostUpdate,
-        resume_game.run_if(not(in_state(GameState::Going))),
-      )
-      .add_systems(
-        FixedPostUpdate,
-        pause_game.run_if(in_state(GameState::Going)),
+        FixedUpdate,
+        (
+          resume_game.run_if(not(in_state(GameState::Going))),
+          pause_game.run_if(in_state(GameState::Going)),
+        ),
       );
   }
 }
 
+#[derive(Default, Debug)]
+struct IsPaused(bool);
+
 fn resume_game(
+  mut is_paused: Local<IsPaused>,
   mut next_state: ResMut<NextState<GameState>>,
   keys: Res<ButtonInput<KeyCode>>,
 ) {
-  if keys.pressed(KeyCode::Space) {
-    next_state.set(GameState::Going)
+  if is_paused.0.not() {
+    if keys.pressed(KeyCode::Space).not() {
+      is_paused.0 = true;
+    }
+  } else if keys.pressed(KeyCode::Space) {
+    next_state.set(GameState::Going);
+    is_paused.0 = false;
   }
 }
 
