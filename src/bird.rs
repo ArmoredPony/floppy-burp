@@ -27,17 +27,22 @@ impl Plugin for BirdPlugin {
       .add_systems(
         Update,
         (update_bird, detect_collision).run_if(in_state(GameState::Going)),
+      )
+      .add_systems(
+        FixedUpdate,
+        control_bird.run_if(in_state(GameState::Going)),
       );
   }
 }
 
-#[derive(Component, Default)]
-pub struct Bird {
-  pub velocity: f32,
-}
+#[derive(Component)]
+pub struct Bird;
+
+#[derive(Component, Deref, Clone, Copy, Default, Debug)]
+pub struct Velocity(f32);
 
 impl Bird {
-  pub const FLAP_FORCE: f32 = 120.0;
+  pub const FLAP_FORCE: f32 = 130.0;
   pub const GRAVITY_COEF: f32 = 700.0;
   pub const VEL_TO_ANGLE_RATIO: f32 = 8.0;
   pub const HITBOX_SIZE: f32 = 4.0;
@@ -52,7 +57,8 @@ fn respawn_bird(
     commands.entity(entity).despawn();
   }
   commands.spawn((
-    Bird::default(),
+    Bird,
+    Velocity::default(),
     Sprite::from_image(asset_server.load("bird.png")),
     Transform::from_xyz(-RESOLUTION.x / 4.0, 0.0, Layer::Bird.into()),
     Shape::Circle(Circle::new(Bird::HITBOX_SIZE)),
@@ -61,30 +67,31 @@ fn respawn_bird(
 
 fn update_bird(
   time: Res<Time>,
-  keys: Res<ButtonInput<KeyCode>>,
-  mut query: Query<(&mut Bird, &mut Transform)>,
+  query: Single<(&mut Velocity, &mut Transform), With<Bird>>,
 ) {
-  let Ok((mut bird, mut transform)) = query.get_single_mut() else {
-    return;
-  };
-  if keys.pressed(KeyCode::Space) {
-    bird.velocity = Bird::FLAP_FORCE;
-  } else {
-    bird.velocity -= time.delta_secs() * Bird::GRAVITY_COEF;
-  }
+  let (mut velocity, mut transform) = query.into_inner();
+  velocity.0 -= time.delta_secs() * Bird::GRAVITY_COEF;
   transform.translation.y = transform
     .translation
     .y
-    .add(bird.velocity * time.delta_secs())
+    .add(velocity.0 * time.delta_secs())
     .clamp(
       -RESOLUTION.y / 2.0 + Bird::HITBOX_SIZE + Ground::LEVEL,
       RESOLUTION.y / 2.0 + Bird::HITBOX_SIZE * 2.0,
     );
   transform.rotation = Quat::from_axis_angle(
     Vec3::Z,
-    f32::clamp(bird.velocity / Bird::VEL_TO_ANGLE_RATIO, -90.0, 90.0)
-      .to_radians(),
+    f32::clamp(velocity.0 / Bird::VEL_TO_ANGLE_RATIO, -90.0, 90.0).to_radians(),
   );
+}
+
+fn control_bird(
+  keys: Res<ButtonInput<KeyCode>>,
+  mut velocity: Single<&mut Velocity, With<Bird>>,
+) {
+  if keys.pressed(KeyCode::Space) {
+    velocity.0 = Bird::FLAP_FORCE;
+  }
 }
 
 fn detect_collision(
