@@ -1,5 +1,6 @@
 #![allow(clippy::type_complexity)]
 
+mod background;
 mod bird;
 mod checkpoint;
 mod collision;
@@ -9,6 +10,7 @@ mod pipe;
 mod score;
 mod state;
 
+use background::BackgroundPlugin;
 use bevy::{
   log::{Level, LogPlugin},
   prelude::*,
@@ -52,6 +54,7 @@ fn main() {
         }),
     )
     .add_plugins((
+      BackgroundPlugin,
       GameStatePlugin,
       CollisionPlugin,
       GroundPlugin,
