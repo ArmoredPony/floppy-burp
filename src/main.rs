@@ -22,9 +22,9 @@ use pipe::PipePlugin;
 use score::ScorePlugin;
 use state::{GameState, GameStatePlugin};
 
-const GAME_SPEED: f32 = 40.0;
+const GAME_SPEED: f32 = 100.0;
 const PHYSICAL_RESOLUTION: Vec2 = Vec2::new(360.0, 720.0);
-const SCALE_FACTOR: f32 = 5.0;
+const SCALE_FACTOR: f32 = 2.0;
 const RESOLUTION: Vec2 = Vec2::new(
   PHYSICAL_RESOLUTION.x / SCALE_FACTOR,
   PHYSICAL_RESOLUTION.y / SCALE_FACTOR,
@@ -39,7 +39,7 @@ fn main() {
             title: "Floppy Burp".into(),
             position: WindowPosition::Centered(MonitorSelection::Primary),
             resolution: WindowResolution::from(PHYSICAL_RESOLUTION)
-              .with_scale_factor_override(5.0),
+              .with_scale_factor_override(SCALE_FACTOR),
             present_mode: PresentMode::AutoVsync,
             ..default()
           }),

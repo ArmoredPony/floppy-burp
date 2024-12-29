@@ -18,7 +18,7 @@ impl Plugin for GameStatePlugin {
       .add_systems(
         FixedUpdate,
         (
-          resume_game.run_if(not(in_state(GameState::Going))),
+          start_or_resume_game.run_if(not(in_state(GameState::Going))),
           pause_game.run_if(in_state(GameState::Going)),
         ),
       );
@@ -28,7 +28,7 @@ impl Plugin for GameStatePlugin {
 #[derive(Default, Debug)]
 struct IsPaused(bool);
 
-fn resume_game(
+fn start_or_resume_game(
   mut is_paused: Local<IsPaused>,
   mut next_state: ResMut<NextState<GameState>>,
   keys: Res<ButtonInput<KeyCode>>,

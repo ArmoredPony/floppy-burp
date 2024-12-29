@@ -41,9 +41,9 @@ impl Plugin for PipePlugin {
 pub struct Pipe;
 
 impl Pipe {
-  pub const HITBOX_SIZE: Vec2 = Vec2 { x: 17.0, y: 142.0 };
-  pub const VERTICAL_GAP: f32 = 35.0;
-  pub const SPAWN_POINT_MID_DISTANCE: f32 = 50.0;
+  pub const HITBOX_SIZE: Vec2 = Vec2 { x: 48.0, y: 318.0 };
+  pub const VERTICAL_GAP: f32 = 80.0;
+  pub const SPAWN_POINT_MID_DISTANCE: f32 = 115.0;
   pub const RESPAWN_COOLDOWN_SEC: f32 = 2.0;
 }
 
@@ -68,7 +68,7 @@ fn spawn_pipes_randomly(
   mut commands: Commands,
   asset_server: Res<AssetServer>,
 ) {
-  let image = asset_server.load::<Image>("pipe.png");
+  let image = asset_server.load::<Image>("pipe-green.png");
   let shape = Shape::Rectangle(Rectangle::from_size(Pipe::HITBOX_SIZE));
   let spawn_point = Vec2 {
     x: RESOLUTION.x / 2.0 + Pipe::HITBOX_SIZE.x,
@@ -93,7 +93,7 @@ fn spawn_pipes_randomly(
   ));
   commands.spawn((
     Pipe,
-    Sprite::from_image(image),
+    Sprite::from(image),
     Transform::from_xyz(
       spawn_point.x,
       spawn_point.y - (Pipe::VERTICAL_GAP + Pipe::HITBOX_SIZE.y) / 2.0,

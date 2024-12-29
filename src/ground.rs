@@ -14,7 +14,7 @@ impl Plugin for GroundPlugin {
 pub struct Ground;
 
 impl Ground {
-  pub const LEVEL: f32 = 20.0;
+  pub const LEVEL: f32 = 50.0;
 }
 
 fn init_ground(mut commands: Commands) {

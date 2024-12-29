@@ -1,9 +1,9 @@
 #[repr(i16)]
 pub enum Layer {
-  Bird = 0,
-  Pipe = -1,
-  Ground = -2,
-  Background = i16::MIN,
+  Background,
+  Ground,
+  Pipe,
+  Bird,
 }
 
 impl From<Layer> for i16 {

@@ -42,10 +42,10 @@ pub struct Bird;
 pub struct Velocity(f32);
 
 impl Bird {
-  pub const FLAP_FORCE: f32 = 130.0;
-  pub const GRAVITY_COEF: f32 = 700.0;
+  pub const FLAP_FORCE: f32 = 300.0;
+  pub const GRAVITY_COEF: f32 = 1800.0;
   pub const VEL_TO_ANGLE_RATIO: f32 = 8.0;
-  pub const HITBOX_SIZE: f32 = 4.0;
+  pub const HITBOX_SIZE: f32 = 10.0;
 }
 
 fn respawn_bird(
@@ -59,7 +59,7 @@ fn respawn_bird(
   commands.spawn((
     Bird,
     Velocity::default(),
-    Sprite::from_image(asset_server.load("bird.png")),
+    Sprite::from_image(asset_server.load("yellowbird-midflap.png")),
     Transform::from_xyz(-RESOLUTION.x / 4.0, 0.0, Layer::Bird.into()),
     Shape::Circle(Circle::new(Bird::HITBOX_SIZE)),
   ));
