@@ -12,14 +12,14 @@ impl Plugin for CollisionPlugin {
   }
 }
 
-#[derive(Component)]
+#[derive(Component, Clone, Copy, PartialEq, Debug)]
 pub enum Shape {
   Rectangle(Rectangle),
   Circle(Circle),
 }
 
 impl Shape {
-  pub fn to_collider(&self, center: Vec2) -> Collider {
+  pub fn to_collider(self, center: Vec2) -> Collider {
     match self {
       Shape::Rectangle(r) => {
         Collider::Rectangle(Aabb2d::new(center, r.half_size))
@@ -31,6 +31,7 @@ impl Shape {
   }
 }
 
+#[derive(Clone, Copy, Debug)]
 pub enum Collider {
   Rectangle(Aabb2d),
   Circle(BoundingCircle),
