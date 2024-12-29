@@ -12,7 +12,7 @@ mod state;
 use bevy::{
   log::{Level, LogPlugin},
   prelude::*,
-  window::WindowResolution,
+  window::{PresentMode, WindowResolution},
 };
 use bird::BirdPlugin;
 use checkpoint::CheckpointPlugin;
@@ -40,6 +40,7 @@ fn main() {
             position: WindowPosition::Centered(MonitorSelection::Primary),
             resolution: WindowResolution::from(PHYSICAL_RESOLUTION)
               .with_scale_factor_override(5.0),
+            present_mode: PresentMode::AutoVsync,
             ..default()
           }),
           ..default()
@@ -50,15 +51,17 @@ fn main() {
           ..default()
         }),
     )
+    .add_plugins((
+      GameStatePlugin,
+      CollisionPlugin,
+      GroundPlugin,
+      BirdPlugin,
+      PipePlugin,
+      CheckpointPlugin,
+      ScorePlugin,
+    ))
     .insert_state(GameState::Idle)
     .add_systems(Startup, setup_game)
-    .add_plugins(GameStatePlugin)
-    .add_plugins(CollisionPlugin)
-    .add_plugins(GroundPlugin)
-    .add_plugins(PipePlugin)
-    .add_plugins(BirdPlugin)
-    .add_plugins(CheckpointPlugin)
-    .add_plugins(ScorePlugin)
     .run();
 }
 

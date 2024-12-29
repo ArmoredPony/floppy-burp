@@ -68,36 +68,38 @@ fn spawn_pipes_randomly(
   mut commands: Commands,
   asset_server: Res<AssetServer>,
 ) {
-  let spawn_point_y = rand::thread_rng().gen_range(
-    (-Pipe::SPAWN_POINT_MID_DISTANCE + Ground::LEVEL)
-      ..Pipe::SPAWN_POINT_MID_DISTANCE,
-  );
+  let image = asset_server.load::<Image>("pipe.png");
+  let shape = Shape::Rectangle(Rectangle::from_size(Pipe::HITBOX_SIZE));
+  let spawn_point = Vec2 {
+    x: RESOLUTION.x / 2.0 + Pipe::HITBOX_SIZE.x,
+    y: rand::thread_rng().gen_range(
+      (-Pipe::SPAWN_POINT_MID_DISTANCE + Ground::LEVEL)
+        ..Pipe::SPAWN_POINT_MID_DISTANCE,
+    ),
+  };
   commands.spawn((
     Pipe,
     Sprite {
-      image: asset_server.load("pipe.png"),
+      image: image.clone(),
       flip_y: true,
       ..default()
     },
     Transform::from_xyz(
-      RESOLUTION.x / 2.0 + Pipe::HITBOX_SIZE.x,
-      (Pipe::VERTICAL_GAP + Pipe::HITBOX_SIZE.y) / 2.0 + spawn_point_y,
+      spawn_point.x,
+      spawn_point.y + (Pipe::VERTICAL_GAP + Pipe::HITBOX_SIZE.y) / 2.0,
       Layer::Pipe.into(),
     ),
-    Shape::Rectangle(Rectangle::from_size(Pipe::HITBOX_SIZE)),
+    shape,
   ));
   commands.spawn((
     Pipe,
-    Sprite {
-      image: asset_server.load("pipe.png"),
-      ..default()
-    },
+    Sprite::from_image(image),
     Transform::from_xyz(
-      RESOLUTION.x / 2.0 + Pipe::HITBOX_SIZE.x,
-      -(Pipe::VERTICAL_GAP + Pipe::HITBOX_SIZE.y) / 2.0 + spawn_point_y,
+      spawn_point.x,
+      spawn_point.y - (Pipe::VERTICAL_GAP + Pipe::HITBOX_SIZE.y) / 2.0,
       Layer::Pipe.into(),
     ),
-    Shape::Rectangle(Rectangle::from_size(Pipe::HITBOX_SIZE)),
+    shape,
     Checkpoint,
   ));
 }
