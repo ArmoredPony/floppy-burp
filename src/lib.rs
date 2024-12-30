@@ -1,6 +1,6 @@
 #![allow(clippy::type_complexity)]
 
-use bevy::prelude::*;
+use bevy::{prelude::*, window::EnabledButtons};
 
 mod background;
 mod bird;
@@ -48,6 +48,10 @@ impl Plugin for FloppyBurpPlugin {
             .with_scale_factor_override(SCALE_FACTOR),
           present_mode: PresentMode::AutoVsync,
           resizable: false,
+          enabled_buttons: EnabledButtons {
+            maximize: false,
+            ..default()
+          },
           ..default()
         }),
         ..default()
