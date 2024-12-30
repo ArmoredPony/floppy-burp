@@ -21,7 +21,7 @@ impl Plugin for PipePlugin {
       spawn_pipes_randomly,
     );
     app
-      .insert_resource(PipeSpawnTimer::from_period(Pipe::RESPAWN_COOLDOWN_SEC))
+      .insert_resource(PipeSpawnTimer::from_seconds(Pipe::RESPAWN_COOLDOWN_SEC))
       .add_systems(OnExit(GameState::Idle), pipe_reset_system_set)
       .add_systems(OnExit(GameState::GameOver), pipe_reset_system_set)
       .add_systems(
@@ -51,8 +51,8 @@ impl Pipe {
 pub struct PipeSpawnTimer(pub Timer);
 
 impl PipeSpawnTimer {
-  pub fn from_period(period: f32) -> Self {
-    Self(Timer::from_seconds(period, TimerMode::Repeating))
+  pub fn from_seconds(seconds: f32) -> Self {
+    Self(Timer::from_seconds(seconds, TimerMode::Repeating))
   }
 }
 

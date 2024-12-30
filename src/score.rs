@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use bevy::prelude::*;
 
 use crate::{checkpoint::CheckpointPassed, state::GameState};
@@ -14,8 +16,14 @@ impl Plugin for ScorePlugin {
   }
 }
 
-#[derive(Resource, Default)]
+#[derive(Resource, Deref, Default)]
 pub struct Score(u32);
+
+impl Display for Score {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "{}", self.0)
+  }
+}
 
 fn increment_score(
   mut score: ResMut<Score>,

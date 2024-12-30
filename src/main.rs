@@ -9,10 +9,11 @@ mod layer;
 mod pipe;
 mod score;
 mod state;
+mod ui;
 
 use background::BackgroundPlugin;
 use bevy::{
-  log::{Level, LogPlugin},
+  log::LogPlugin,
   prelude::*,
   window::{PresentMode, WindowResolution},
 };
@@ -23,6 +24,7 @@ use ground::GroundPlugin;
 use pipe::PipePlugin;
 use score::ScorePlugin;
 use state::{GameState, GameStatePlugin};
+use ui::UiPlugin;
 
 const GAME_SPEED: f32 = 100.0;
 const PHYSICAL_RESOLUTION: Vec2 = Vec2::new(360.0, 720.0);
@@ -49,7 +51,7 @@ fn main() {
         })
         .set(ImagePlugin::default_nearest())
         .set(LogPlugin {
-          level: Level::DEBUG,
+          filter: "floppy_burp=debug".into(),
           ..default()
         }),
     )
@@ -62,6 +64,7 @@ fn main() {
       PipePlugin,
       CheckpointPlugin,
       ScorePlugin,
+      UiPlugin,
     ))
     .insert_state(GameState::Idle)
     .add_systems(Startup, setup_game)
