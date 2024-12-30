@@ -26,7 +26,11 @@ impl Plugin for BirdPlugin {
       )
       .add_systems(
         Update,
-        (update_bird, detect_collision).run_if(in_state(GameState::Going)),
+        (
+          (update_bird, detect_collisions).run_if(in_state(GameState::Going)),
+          animate_bird
+            .run_if(in_state(GameState::Idle).or(in_state(GameState::Going))),
+        ),
       )
       .add_systems(
         FixedUpdate,
@@ -46,11 +50,19 @@ impl Bird {
   pub const GRAVITY_COEF: f32 = 1800.0;
   pub const VEL_TO_ANGLE_RATIO: f32 = 8.0;
   pub const HITBOX_SIZE: f32 = 10.0;
+  pub const SPRITE_SIZE: UVec2 = UVec2 { x: 34, y: 24 };
+}
+
+#[derive(Component)]
+struct AnimationConfig {
+  total_frames: usize,
+  timer: Timer,
 }
 
 fn respawn_bird(
   mut commands: Commands,
   asset_server: Res<AssetServer>,
+  mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
   query: Query<Entity, With<Bird>>,
 ) {
   if let Ok(entity) = query.get_single() {
@@ -58,10 +70,26 @@ fn respawn_bird(
   }
   commands.spawn((
     Bird,
-    Velocity::default(),
-    Sprite::from_image(asset_server.load("yellowbird-midflap.png")),
+    Sprite::from_atlas_image(
+      asset_server.load("yellowbird-sheet.png"),
+      TextureAtlas {
+        layout: texture_atlas_layouts.add(TextureAtlasLayout::from_grid(
+          Bird::SPRITE_SIZE,
+          4,
+          1,
+          None,
+          None,
+        )),
+        index: 0,
+      },
+    ),
     Transform::from_xyz(-RESOLUTION.x / 4.0, 0.0, Layer::Bird.into()),
     Shape::Circle(Circle::new(Bird::HITBOX_SIZE)),
+    Velocity::default(),
+    AnimationConfig {
+      total_frames: 4,
+      timer: Timer::from_seconds(0.1, TimerMode::Repeating),
+    },
   ));
 }
 
@@ -85,6 +113,18 @@ fn update_bird(
   );
 }
 
+fn animate_bird(
+  time: Res<Time>,
+  query: Single<(&mut Sprite, &mut AnimationConfig), With<Bird>>,
+) {
+  let (mut sprite, mut config) = query.into_inner();
+  config.timer.tick(time.delta());
+  if config.timer.just_finished() {
+    let atlas = &mut sprite.texture_atlas.as_mut().unwrap();
+    atlas.index = (atlas.index + 1) % config.total_frames;
+  }
+}
+
 fn control_bird(
   keys: Res<ButtonInput<KeyCode>>,
   mut velocity: Single<&mut Velocity, With<Bird>>,
@@ -94,7 +134,7 @@ fn control_bird(
   }
 }
 
-fn detect_collision(
+fn detect_collisions(
   mut next_state: ResMut<NextState<GameState>>,
   bird_query: Single<(&Shape, &Transform), With<Bird>>,
   obstacle_query: Query<(&Shape, &Transform), Or<(With<Pipe>, With<Ground>)>>,
