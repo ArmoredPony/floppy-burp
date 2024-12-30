@@ -20,7 +20,7 @@ impl FromWorld for GameFont {
   fn from_world(world: &mut World) -> Self {
     let font = world
       .resource::<AssetServer>()
-      .load("fonts/FlappyBirdRegular.ttf");
+      .load("FlappyBirdRegular.ttf");
     Self(TextFont {
       font,
       font_size: 28.0,
