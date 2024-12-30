@@ -39,27 +39,28 @@ pub struct FloppyBurpPlugin;
 
 impl Plugin for FloppyBurpPlugin {
   fn build(&self, app: &mut App) {
+    let default_plugins = DefaultPlugins
+      .set(WindowPlugin {
+        primary_window: Some(Window {
+          title: "Floppy Burp".into(),
+          position: WindowPosition::Centered(MonitorSelection::Primary),
+          resolution: WindowResolution::from(PHYSICAL_RESOLUTION)
+            .with_scale_factor_override(SCALE_FACTOR),
+          present_mode: PresentMode::AutoVsync,
+          resizable: false,
+          ..default()
+        }),
+        ..default()
+      })
+      .set(ImagePlugin::default_nearest());
+    #[cfg(debug_assertions)]
+    let default_plugins = default_plugins.set(LogPlugin {
+      filter: "floppy_burp=debug".into(),
+      ..default()
+    });
     app
-      .add_plugins(
-        DefaultPlugins
-          .set(WindowPlugin {
-            primary_window: Some(Window {
-              title: "Floppy Burp".into(),
-              position: WindowPosition::Centered(MonitorSelection::Primary),
-              resolution: WindowResolution::from(PHYSICAL_RESOLUTION)
-                .with_scale_factor_override(SCALE_FACTOR),
-              present_mode: PresentMode::AutoVsync,
-              ..default()
-            }),
-            ..default()
-          })
-          .set(ImagePlugin::default_nearest())
-          .set(LogPlugin {
-            filter: "floppy_burp=debug".into(),
-            ..default()
-          }),
-      )
       .add_plugins((
+        default_plugins,
         BackgroundPlugin,
         GameStatePlugin,
         CollisionPlugin,
